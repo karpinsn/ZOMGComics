@@ -45,17 +45,17 @@ namespace ZOMGComics
         /// session.  This will be null the first time a page is visited.</param>
         protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
-            // TODO: Create an appropriate data model for your problem domain to replace the sample data
-            var group = ComicDataSource.GetComic((int)navigationParameter);
-            this.DefaultViewModel["Group"] = group;
-            this.DefaultViewModel["Items"] = group.Items;
+            var comic = ComicDataSource.GetComic((int)navigationParameter);
+            this.DefaultViewModel["Group"] = comic;
+            this.DefaultViewModel["Items"] = comic.Items;
 
             if (pageState == null)
             {
-                this.itemListView.SelectedItem = null;
+                //TODO-Removing thiss
+                //this.itemListView.SelectedItem = null;
                 // When this is a new page, select the first item automatically unless logical page
                 // navigation is being used (see the logical page navigation #region below.)
-                if (!this.UsingLogicalPageNavigation() && this.itemsViewSource.View != null)
+                if (this.itemsViewSource.View != null)
                 {
                     this.itemsViewSource.View.MoveCurrentToFirst();
                 }
@@ -115,45 +115,6 @@ namespace ZOMGComics
         }
 
         /// <summary>
-        /// Invoked when an item within the list is selected.
-        /// </summary>
-        /// <param name="sender">The GridView (or ListView when the application is Snapped)
-        /// displaying the selected item.</param>
-        /// <param name="e">Event data that describes how the selection was changed.</param>
-        void ItemListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // Invalidate the view state when logical page navigation is in effect, as a change
-            // in selection may cause a corresponding change in the current logical page.  When
-            // an item is selected this has the effect of changing from displaying the item list
-            // to showing the selected item's details.  When the selection is cleared this has the
-            // opposite effect.
-            if (this.UsingLogicalPageNavigation()) this.InvalidateVisualState();
-        }
-
-        /// <summary>
-        /// Invoked when the page's back button is pressed.
-        /// </summary>
-        /// <param name="sender">The back button instance.</param>
-        /// <param name="e">Event data that describes how the back button was clicked.</param>
-        protected override void GoBack(object sender, RoutedEventArgs e)
-        {
-            if (this.UsingLogicalPageNavigation() && itemListView.SelectedItem != null)
-            {
-                // When logical page navigation is in effect and there's a selected item that
-                // item's details are currently displayed.  Clearing the selection will return
-                // to the item list.  From the user's point of view this is a logical backward
-                // navigation.
-                this.itemListView.SelectedItem = null;
-            }
-            else
-            {
-                // When logical page navigation is not in effect, or when there is no selected
-                // item, use the default back button behavior.
-                base.GoBack(sender, e);
-            }
-        }
-
-        /// <summary>
         /// Invoked to determine the name of the visual state that corresponds to an application
         /// view state.
         /// </summary>
@@ -164,7 +125,8 @@ namespace ZOMGComics
         protected override string DetermineVisualState(ApplicationViewState viewState)
         {
             // Update the back button's enabled state when the view state changes
-            var logicalPageBack = this.UsingLogicalPageNavigation(viewState) && this.itemListView.SelectedItem != null;
+            //TODO-Removing thiss
+            var logicalPageBack = this.UsingLogicalPageNavigation(viewState);// && this.itemListView.SelectedItem != null;
             var physicalPageBack = this.Frame != null && this.Frame.CanGoBack;
             this.DefaultViewModel["CanGoBack"] = logicalPageBack || physicalPageBack;
 
