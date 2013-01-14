@@ -13,11 +13,20 @@ namespace Scraper
         private Uri _currentLocation;
         private HtmlWeb _web;
 
-        public XPathScraper()
+        //  Used for the XPath scraping
+        private readonly string _comicXPath;
+        private readonly string _nextXPath;
+        private readonly string _extraXPath;
+
+        public XPathScraper(string domain, string startingPath, string comicXPath, string extraXPath, string nextXPath)
         {
+            _comicXPath = comicXPath;
+            _extraXPath = extraXPath;
+            _nextXPath = nextXPath;
+
             _web = new HtmlWeb();
-            _domain = new Uri(@"http://xkcd.com", UriKind.Absolute);
-            _currentLocation = new Uri(@"/1/", UriKind.Relative);
+            _domain = new Uri(domain, UriKind.Absolute);
+            _currentLocation = new Uri(startingPath, UriKind.Relative);
         }
 
         public bool AdvanceNext()
@@ -28,64 +37,96 @@ namespace Scraper
             string location = _ScrapeNextLink(doc);
             _currentLocation = new Uri(location, UriKind.Relative);
 
-            return !String.IsNullOrEmpty(location) && !location.Equals("#");
+            return !String.IsNullOrEmpty(location) && _currentLocation.IsWellFormedOriginalString();
         }
 
         public string ScrapeComic()
         {
-            var page = new Uri(_domain, _currentLocation);
-            var doc = _web.Load(page.ToString());
-
-            return _ScrapeComic(doc);
-        }
-
-        private string _ScrapeComic(HtmlDocument document)
-        {
-            var nodes = document.DocumentNode.SelectNodes(@"//div[@id=""comic""]//img");
             string comicURL = string.Empty;
 
-            //  Found our node and only our node
-            if (1 == nodes.Count)
+            var doc = _GetCurrentDocument();
+            if (null == doc)
             {
-                //  Make sure we have a source to scrape
-                if (nodes[0].Attributes.Contains("src"))
+                return comicURL;
+            }
+
+            //  Start by scraping the xpath
+            var nodes = doc.DocumentNode.SelectNodes(_comicXPath);
+            if (1 <= nodes.Count)
+            {
+                //  Our nodes must have a src attribute (the actual comic)
+                var possibleNodes = from node in nodes
+                                    where node.Attributes.Contains("src")
+                                    select node;
+
+                //  We have our comic
+                if (1 == possibleNodes.Count())
                 {
-                    comicURL = nodes[0].Attributes["src"].Value;
+                    comicURL = possibleNodes.First().Attributes["src"].Value;
                 }
             }
 
             return comicURL;
         }
 
-        private string _ScrapeNextLink(HtmlDocument document)
+        public string ScrapeExtra()
         {
-            var nodes = document.DocumentNode.SelectNodes(@"//a[@accesskey=""n""]");
-            string nextURL = string.Empty;
+            string extra = string.Empty;
 
-            //  Found our node and only our node
-            if (1 == nodes.Count)
+            var doc = _GetCurrentDocument();
+            if (null == doc)
             {
-                //  Make sure we have a source to scrape
-                if (nodes[0].Attributes.Contains("href"))
+                return extra;
+            }
+
+            var nodes = doc.DocumentNode.SelectNodes(_extraXPath);
+            if (1 <= nodes.Count)
+            {
+                var links = from node in nodes
+                            where node.Attributes.Contains("title")
+                            select node;
+
+                if (1 == links.Count())
                 {
-                    nextURL = nodes[0].Attributes["href"].Value;
+                    extra = links.First().Attributes["title"].Value;
                 }
             }
-            else if (1 < nodes.Count)
-            {
-                //  Hmmm we found multiple nodes. Try and work our way down
-                //  TODO - Need to fix this
-                var links = (from node in nodes
-                            where node.Attributes.Contains("href")
-                            select node).FirstOrDefault();
 
-                if (null != links)
+            return extra;
+        }
+
+        private string _ScrapeNextLink(HtmlDocument document)
+        {
+            var nodes = document.DocumentNode.SelectNodes(_nextXPath);
+            string nextURL = string.Empty;
+
+            if (1 <= nodes.Count)
+            {
+                var links = from node in nodes
+                            where node.Attributes.Contains("href")
+                            select node;
+
+                //  Need to narrow to 1
+                if (1 <= links.Count())
                 {
-                    nextURL = links.Attributes["href"].Value;
+                    nextURL = links.First().Attributes["href"].Value;
                 }
             }
 
             return nextURL;
+        }
+
+        private HtmlDocument _GetCurrentDocument()
+        {
+            Uri page = new Uri(_domain, _currentLocation);
+            HtmlDocument doc = null;
+
+            if (page.IsWellFormedOriginalString())
+            {
+                doc = _web.Load(page.ToString());
+            }
+
+            return doc;
         }
     }
 }

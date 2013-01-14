@@ -20,11 +20,13 @@ namespace Scraper
 
             while (true)
             {
-                XPathScraper scraper = new XPathScraper();
+                XPathScraper scraper = new XPathScraper(@"http://xkcd.com", @"/1/", @"//div[@id=""comic""]//img", @"//div[@id=""comic""]//img", @"//a[@accesskey=""n""]");
 
                 do
                 {
                     Trace.WriteLine(scraper.ScrapeComic(), "Information");
+                    Trace.WriteLine(scraper.ScrapeExtra(), "Information");
+
                 } while (scraper.AdvanceNext());
 
                 Thread.Sleep(10000);
