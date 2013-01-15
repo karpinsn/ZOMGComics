@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using ScraperUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,85 +43,57 @@ namespace Scraper
 
         public string ScrapeComic()
         {
-            string comicURL = string.Empty;
-
-            var doc = _GetCurrentDocument();
-            if (null == doc)
-            {
-                return comicURL;
-            }
-
-            //  Start by scraping the xpath
-            var nodes = doc.DocumentNode.SelectNodes(_comicXPath);
-            if (1 <= nodes.Count)
-            {
-                //  Our nodes must have a src attribute (the actual comic)
-                var possibleNodes = from node in nodes
-                                    where node.Attributes.Contains("src")
-                                    select node;
-
-                //  We have our comic
-                if (1 == possibleNodes.Count())
-                {
-                    comicURL = possibleNodes.First().Attributes["src"].Value;
-                }
-            }
-
-            return comicURL;
+            return _ScrapeAttribute(_comicXPath, "src");
         }
 
         public string ScrapeExtra()
         {
-            string extra = string.Empty;
-
-            var doc = _GetCurrentDocument();
-            if (null == doc)
-            {
-                return extra;
-            }
-
-            var nodes = doc.DocumentNode.SelectNodes(_extraXPath);
-            if (1 <= nodes.Count)
-            {
-                var links = from node in nodes
-                            where node.Attributes.Contains("title")
-                            select node;
-
-                if (1 == links.Count())
-                {
-                    extra = links.First().Attributes["title"].Value;
-                }
-            }
-
-            return extra;
+            return _ScrapeAttribute(_extraXPath, "title");
         }
 
         private string _ScrapeNextLink(HtmlDocument document)
         {
-            var nodes = document.DocumentNode.SelectNodes(_nextXPath);
-            string nextURL = string.Empty;
+            return _ScrapeAttribute(_nextXPath, "href");
+        }
 
+        private string _ScrapeAttribute(string xPath, string attribute)
+        {
+            InputValidator.AssertThrowInputNotNullOrEmpty(xPath, "xPath");
+            InputValidator.AssertThrowInputNotNullOrEmpty(attribute, "attribute");
+
+            string scrapedAttribute = string.Empty;
+
+            //  Get the current document. If we can't get it we can't scrape anything
+            var doc = _GetCurrentDocument();
+            if (null == doc)
+                return scrapedAttribute;
+
+            //  Scrape according to the xPath. If we dont get anything then we can't scrape
+            var nodes = doc.DocumentNode.SelectNodes(xPath);
             if (1 <= nodes.Count)
             {
-                var links = from node in nodes
-                            where node.Attributes.Contains("href")
-                            select node;
+                //  Try and narrow down based on what the attributes the nodes have
+                var possibleNodes = from node in nodes
+                                    where node.Attributes.Contains(attribute)
+                                    select node;
 
-                //  Need to narrow to 1
-                if (1 <= links.Count())
+                //  TODO: Need to narrow to 1
+                if (1 <= possibleNodes.Count())
                 {
-                    nextURL = links.First().Attributes["href"].Value;
+                    scrapedAttribute = possibleNodes.First().Attributes[attribute].Value;
                 }
             }
 
-            return nextURL;
+            return scrapedAttribute;
         }
 
         private HtmlDocument _GetCurrentDocument()
         {
+            //  Form the page URI
             Uri page = new Uri(_domain, _currentLocation);
             HtmlDocument doc = null;
 
+            //  If we have a well formed URI then load the page and return it
             if (page.IsWellFormedOriginalString())
             {
                 doc = _web.Load(page.ToString());

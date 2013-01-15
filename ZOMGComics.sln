@@ -7,6 +7,8 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "ComicScraper", "ComicScrape
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scraper", "Scraper\Scraper.csproj", "{70F6240E-8F92-4AF2-BB6B-DE4997E14DBC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScraperUtils", "ScraperUtils\ScraperUtils.csproj", "{01E1BAD5-C496-4A7F-8CB4-C00857329055}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,16 @@ Global
 		{70F6240E-8F92-4AF2-BB6B-DE4997E14DBC}.Release|ARM.ActiveCfg = Release|Any CPU
 		{70F6240E-8F92-4AF2-BB6B-DE4997E14DBC}.Release|x64.ActiveCfg = Release|Any CPU
 		{70F6240E-8F92-4AF2-BB6B-DE4997E14DBC}.Release|x86.ActiveCfg = Release|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Release|ARM.ActiveCfg = Release|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Release|x64.ActiveCfg = Release|Any CPU
+		{01E1BAD5-C496-4A7F-8CB4-C00857329055}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
